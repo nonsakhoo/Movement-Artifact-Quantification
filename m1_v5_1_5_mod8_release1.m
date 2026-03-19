@@ -418,46 +418,7 @@ function main()
                         algo1_second_peak_location_all_flip = NaN(size(image_normalized, 1), 1); % Preallocate with NaN         
                         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                         if conf_algo1_enable
-                            % 1. Enumerate each line of normalized image
-                            for row = 1:size(image_normalized, 1)  % 1 means row-wise, 2 means column-wise
-                                signal = image_normalized(row, :);
-
-                                % 2. Compute the correlation analysis of the signal with itself
-                                [corr, lags] = xcorr(signal, signal, 'coeff');
-                                algo1_corr_all(row, :) = corr; % Assign directly to preallocated array
-                                algo1_lags_all(row, :) = lags; % Assign directly to preallocated array
-
-                                % 3. Identify potential peaks of the correlation coefficient
-                                if conf_algo1_enable_dynamic_prominence
-                                    % Calculate the minimum peak prominence based on the image size
-                                    %min_peak_prominence = conf_algo1_min_peak_prominence * (size(image_normalized, 2) / 100); % Adjusted based on image size
-                                    min_peak_prominence = conf_algo1_min_peak_prominence * std(corr); % Example: 0.1 of conf_algo1_min_peak_prominence means 10% of the standard deviation
-                                else
-                                    min_peak_prominence = conf_algo1_min_peak_prominence; % Use the fixed value
-                                end
-                                % Find peaks in the correlation signal
-                                [peaks, locations] = findpeaks(corr, 'MinPeakProminence', min_peak_prominence); % Adjust 'MinPeakProminence' as needed
-
-                                % 4. Find the significant second peak
-                                if length(peaks) > 1
-                                    [peaks_sorted, indices_sorted] = sort(peaks, 'descend');
-                                    if length(peaks_sorted) >= 2
-                                        second_peak_value = peaks_sorted(2);
-                                    else
-                                        second_peak_value = NaN; % Assign NaN if there is no second peak
-                                    end
-                                    second_peak_location = lags(locations(indices_sorted(2)));
-                                    if conf_absolute_mode
-                                        second_peak_value = abs(second_peak_value);
-                                        second_peak_location = abs(second_peak_location);
-                                    end
-                                    algo1_second_peak_value_all(row) = second_peak_value;
-                                    algo1_second_peak_location_all(row) = second_peak_location;
-                                else
-                                    algo1_second_peak_value_all(row) = NaN;
-                                    algo1_second_peak_location_all(row) = NaN;
-                                end % End of if length(peaks) > 1
-                            end % End of each line of image_cropped_rotated
+                            disp('[MAPE] This code section will be updated after publication.');
                             %disp('Algorithm 1 completed.');
                         end % End of conf_algo1_enable
 
@@ -487,47 +448,7 @@ function main()
                         algo2_slope_peak_value_all = NaN(size(image_normalized, 1), 1); % Preallocate with NaN
                         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                         if conf_algo2_enable
-                            % 2. Calculate the exponential moving average (EMA) of the normalized signal
-                            for row = 1:size(image_normalized, 1)  % 1 means row-wise, 2 means column-wise
-                                signal = image_normalized(row, :);  
-                                signal_ema = zeros(size(signal));
-                                signal_ema(1) = signal(1);
-                                for i = 2:length(signal)
-                                    signal_ema(i) = conf_algo2_ema_alpha * signal(i) + (1 - conf_algo2_ema_alpha) * signal_ema(i - 1);
-                                end
-                                algo2_signal_ema_all(row, :) = signal_ema; % Assign to preallocated array for other algorithms.
-                            end
-
-                            % 3. Calculate the slope of the EMA
-                            for row = 1:size(algo2_signal_ema_all, 1)  % 1 means row-wise, 2 means column-wise
-                                signal_slope = diff(algo2_signal_ema_all(row, :)); % Calculate the slope using diff function
-                                algo2_signal_slope_all(row, :) = signal_slope; % Assign directly to preallocated array for other algorithms.
-                            end
-
-                            % 4. Find the peak of slope to determine the reference point
-                            for row = 1:size(algo2_signal_slope_all, 1)
-                                signal_slope = algo2_signal_slope_all(row, :); % Get the slope for the current row
-                                if signal_slope(1) > 0
-                                    % dark to bright
-                                    [peak_value, peak_index] = max(signal_slope);
-                                else
-                                    % bright to dark
-                                    [peak_value, peak_index] = min(signal_slope);
-                                end
-                                algo2_slope_peak_location_all(row) = peak_index;
-                                algo2_slope_peak_value_all(row) = peak_value;
-                            end
-
-                            % 5. Suppress non-significant slope peaks based on a threshold
-                            % Calculate a threshold to suppress non-significant slope peaks.
-                            % The threshold is determined as a percentage (defined by conf_algo2_slope_peak_threshold)
-                            % of the maximum absolute slope peak value in the current row.
-                            slope_peak_threshold = conf_algo2_slope_peak_threshold * max(abs(algo2_slope_peak_value_all)); % Define a threshold as a percentage of the max peak value
-                            suppressed_indices = abs(algo2_slope_peak_value_all) > slope_peak_threshold; % Identify suppressed indices
-                            % Calculate a threshold to suppress non-significant slope peaks.
-                            % The threshold is determined as a percentage (defined by conf_algo2_slope_peak_threshold)
-                            % of the maximum absolute slope peak value in the current row.
-                            algo2_slope_peak_location_all(suppressed_indices) = NaN; % Set corresponding indices to NaN
+                            disp('[ROPE] This code section will be updated after publication.');
                             %disp('Algorithm 2 completed.');
                         end % End of conf_algo2_enable
 
@@ -557,138 +478,7 @@ function main()
                         algo3_slope_std_all = NaN(size(algo2_signal_slope_all, 1), 1); % Standard deviations of the slopes
                         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                         if conf_algo3_enable
-
-                            % 1. Filter out the second peak lags that are not related with the slope peaks <-- This should not be used.
-                            if conf_algo3_enable_corresponding_second_peak_filtering
-                                for i = 1:length(algo3_second_peak_location_all)
-                                    if isnan(algo3_slope_peak_location_all(i)) || isnan(algo3_second_peak_location_all(i))
-                                        algo3_second_peak_location_all(i) = NaN; % Mark as NaN if the slope peak index or second peak lag is NaN
-                                    end
-                                end
-                                for i = 1:length(algo3_second_peak_location_all_flip)
-                                    if isnan(algo3_slope_peak_location_all(i)) || isnan(algo3_second_peak_location_all_flip(i))
-                                        algo3_second_peak_location_all_flip(i) = NaN; % Mark as NaN if the slope peak index or flipped second peak lag is NaN
-                                    end
-                                end
-                            end
-
-                            % 2. Filter out the slope peaks that are not related with the second peak lags <-- This should not be used.
-                            if conf_algo3_enable_corresponding_slope_peak_filtering
-                                for i = 1:length(algo3_slope_peak_location_all)
-                                    if isnan(algo3_second_peak_location_all(i)) && isnan(algo3_second_peak_location_all_flip(i))
-                                        algo3_slope_peak_location_all(i) = NaN; % Mark as NaN if the second peak lag and flipped second peak lag is NaN
-                                    else
-                                        if abs(algo3_second_peak_location_all(i) - algo3_slope_peak_location_all(i)) > conf_algo3_maquantity_threshold
-                                            algo3_slope_peak_location_all(i) = NaN; % Mark as NaN if the condition exceeds the threshold
-                                        end
-                                        if abs(algo3_second_peak_location_all_flip(i) - algo3_slope_peak_location_all(i)) > conf_algo3_maquantity_threshold
-                                            algo3_slope_peak_location_all(i) = NaN; % Mark as NaN if the condition exceeds the threshold
-                                        end
-                                    end
-                                end
-                            end
-
-                            % 3. Proposed Adaptive Filtering: Filter out the slope peaks based on the moving average of the lower peak values.
-                            if conf_algo3_enable_adaptive_filtering
-                                % 3.1 Calculate the standard deviation of each slopes of algo2_signal_slope_all                            
-                                for row = 1:size(algo2_signal_slope_all, 1)
-                                    algo3_slope_std_all(row) = std(algo2_signal_slope_all(row, :), 'omitnan'); % Compute standard deviation, omitting NaN values
-                                end
-
-                                % 3.2 Calculate the lower peak of the standard deviation of the slope
-                                % Find all possible lower peaks. But not the same size as the algo3_slope_sted_all.
-                                [std_peaks, std_locations] = findpeaks(-algo3_slope_std_all);
-                                if ~isempty(std_peaks)
-                                    algo2_lower_peak_values = -std_peaks; % Negate to get the actual values of the lower peaks
-                                    algo2_lower_peak_locations = std_locations; % Collect all peak locations
-                                else
-                                    algo2_lower_peak_values = NaN;
-                                    algo2_lower_peak_locations = NaN;
-                                end
-
-                                % 3.3 Making up the invalid values.
-                                % Fill NaN values in algo2_lower_peak_values_filled with the nearest valid values
-                                algo2_lower_peak_values_filled = NaN(size(algo3_slope_std_all)); % Initialize with NaN of the same size as algo3_slope_std_all
-                                algo2_lower_peak_values_filled(algo2_lower_peak_locations) = algo2_lower_peak_values; % Assign values at the corresponding locations
-                                for i = 1:length(algo2_lower_peak_values_filled)
-                                    if isnan(algo2_lower_peak_values_filled(i))
-                                        left = find(~isnan(algo2_lower_peak_values_filled(1:i-1)), 1, 'last');
-                                        right = find(~isnan(algo2_lower_peak_values_filled(i+1:end)), 1, 'first') + i;
-                                        if ~isempty(left) && ~isempty(right)
-                                            % Use the nearest valid value
-                                            if (i - left) <= (right - i)
-                                                algo2_lower_peak_values_filled(i) = algo2_lower_peak_values_filled(left);
-                                            else
-                                                algo2_lower_peak_values_filled(i) = algo2_lower_peak_values_filled(right);
-                                            end
-                                        elseif ~isempty(left)
-                                            algo2_lower_peak_values_filled(i) = algo2_lower_peak_values_filled(left);
-                                        elseif ~isempty(right)
-                                            algo2_lower_peak_values_filled(i) = algo2_lower_peak_values_filled(right);
-                                        end
-                                    end
-                                end
-
-                                % 3.4 Calculate the criterion trend lines
-                                algo2_lower_peak_values_ma_slower = NaN(size(algo2_lower_peak_values_filled)); % Initialize with NaN
-                                algo2_lower_peak_values_ma_faster = NaN(size(algo2_lower_peak_values_filled)); % Initialize with NaN
-                                % Less sensitive criterion trend line
-                                algo2_lower_peak_values_ma_slower = movmean(algo2_lower_peak_values_filled, round(conf_algo3_filtering_threshold_ma_slower_percent / 100 * size(image_cropped_rotated, 2))); % Calculate the moving average of the lower peak values
-                                % More sensitive criterion trend line
-                                algo2_lower_peak_values_ma_faster = movmean(algo2_lower_peak_values_filled, round(conf_algo3_filtering_threshold_ma_faster_percent / 100 * size(image_cropped_rotated, 2))); % Calculate the moving average of the faster peak values
-                                
-                                % 3.5 Operate the filtering
-                                algo2_slope_peak_location_all_filtered = algo3_slope_peak_location_all; % Initialize with the original slope peak locations
-                                for row = 1:length(algo3_slope_peak_location_all)
-                                    if algo2_lower_peak_values_ma_faster(row) > algo2_lower_peak_values_ma_slower(row)
-                                        algo2_slope_peak_location_all_filtered(row) = NaN;
-                                        algo3_second_peak_location_all(row) = NaN; % Mark as NaN if the condition is met
-                                        algo3_second_peak_location_all_flip(row) = NaN; % Mark as NaN if the condition is met
-                                    elseif algo2_lower_peak_values_ma_faster(row) <= algo2_lower_peak_values_ma_slower(row)
-                                        if algo3_slope_std_all(row) > algo2_lower_peak_values_ma_slower(row)
-                                            algo2_slope_peak_location_all_filtered(row) = NaN;
-                                            algo3_second_peak_location_all(row) = NaN; % Mark as NaN if the condition is met
-                                            algo3_second_peak_location_all_flip(row) = NaN; % Mark as NaN if the condition is met
-                                        end
-                                    end
-                                end
-                                algo3_slope_peak_location_all = algo2_slope_peak_location_all_filtered; % Update the slope peak locations with the filtered values
-                            end
-
-                            % 4. Calculate the MAq
-                            maquantity_all = [];
-                            for i = 1:length(algo3_slope_peak_location_all)
-                                slope_peak_location = algo3_slope_peak_location_all(i);
-                                if isnan(slope_peak_location)
-                                    % Append NaN if the slope peak location is NaN
-                                    maquantity_all = [maquantity_all, NaN];
-                                else
-                                    if isnan(algo3_second_peak_location_all(i)) && isnan(algo3_second_peak_location_all_flip(i))
-                                        maquantity_all = [maquantity_all, NaN];
-                                    else
-                                        if isnan(algo3_second_peak_location_all(i)) && ~isnan(algo3_second_peak_location_all_flip(i))
-                                            maquantity = slope_peak_location - algo3_second_peak_location_all_flip(i);
-                                        elseif ~isnan(algo3_second_peak_location_all(i)) && isnan(algo3_second_peak_location_all_flip(i))
-                                            maquantity = slope_peak_location - algo3_second_peak_location_all(i);
-                                        elseif ~isnan(algo3_second_peak_location_all(i)) && ~isnan(algo3_second_peak_location_all_flip(i))
-                                            if abs(slope_peak_location - algo3_second_peak_location_all(i)) <= abs(slope_peak_location - algo3_second_peak_location_all_flip(i))
-                                                maquantity = slope_peak_location - algo3_second_peak_location_all(i);
-                                            else
-                                                maquantity = slope_peak_location - algo3_second_peak_location_all_flip(i);
-                                            end
-                                        else
-                                            maquantity = NaN;
-                                        end
-
-                                        % Check if the MAq exceeds the threshold
-                                        if ~isnan(maquantity) && abs(maquantity) > conf_algo3_maquantity_threshold
-                                            maquantity_all = [maquantity_all, NaN];
-                                        else
-                                            maquantity_all = [maquantity_all, maquantity];
-                                        end
-                                    end
-                                end
-                            end
+                            ddisp('[MAQ] This code section will be updated after publication.');
                         end % End of conf_algo3_enable
 
 
