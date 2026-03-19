@@ -40,6 +40,10 @@ The implementation uses MATLAB functions such as `imread`, `rgb2gray`, `imcomple
 
 The current script is configured for a specific dataset layout and currently contains hard-coded base paths for macOS and Windows.
 
+Dataset source:
+
+- Kaggle: https://www.kaggle.com/datasets/nonsakhoo/empirical-planar-black-dot-motion-blur
+
 By default, the script expects dataset folders under paths like:
 
 - macOS: `/Users/geeksloth/Desktop/Movement_Artifact_Dataset_2/cropped/`
