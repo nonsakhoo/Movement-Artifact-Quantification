@@ -1,23 +1,21 @@
 # Movement Artifact Quantification Research Code
 
-This repository contains the research release of the MATLAB implementation used for the paper review process for the Movement Artifact Quantification paper.
+This repository contains the research release of the MATLAB implementation used for the paper review process for the Movement Artifact Quantification paper: https://doi.org/10.3390/s26082360  
 
 The current release reflects the method as described in the manuscript, including the experimental pipeline used in the paper. It is intentionally provided as a research snapshot rather than a polished software package.
 
 ## Status
 
-- **The MADE/ROPE/MAQ algorithm codes will be updated after the publication.**  
 - This code is a paper-aligned research release.
 - It is not the final production version.
 - Some parts are hard-coded for the current experimental setup.
-- Some algorithms and workflows are still organized in a research-oriented manner rather than as a general-purpose toolbox.
-- An improved, cleaner, and better-optimized version will be released after publication.
+- Some algorithms and workflows are still organized in a research-oriented manner rather than as a general-purpose toolbox.  
 
 ## Main Script
 
 The main release file is:
 
-- `m1_v5_1_5_mod8_release1.m`
+- `m1_v5_1_5_mod8.m`
 
 This script includes the end-to-end experimental pipeline used in this release, including:
 
@@ -75,7 +73,9 @@ It is not yet intended to serve as the final public software package.
 
 ## Citation
 
-If this repository is useful in your research, please cite the corresponding paper once it is published.
+If this repository is useful in your research, please cite these papers:  
+https://doi.org/10.3390/s25247487  
+https://doi.org/10.3390/s26082360  
 
 ## Future Release
 
